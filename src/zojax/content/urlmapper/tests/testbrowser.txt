@@ -1,0 +1,148 @@
+=============
+Browser tests
+=============
+
+    >>> from zope import interface, component, event
+    >>> from zope.testbrowser.testing import Browser
+    >>> from zope.traversing.browser import absoluteURL
+    >>> from zope.publisher.browser import TestRequest
+    >>> from zope.lifecycleevent import ObjectCreatedEvent
+    >>> from zope.lifecycleevent import ObjectModifiedEvent
+    >>> from zojax.content.urlmapper.interfaces \
+    ...      import IURLMapper, IURLMappable, IURLMapperAware
+    >>> from zojax.content.urlmapper.tests.content import Content2, Content1
+
+    >>> root = getRootFolder()
+
+    >>> content11 = root['content11']
+    >>> content12 = root['content12']
+    >>> content21 = root['content21']
+    >>> content22 = root['content22']
+    >>> request = TestRequest()
+
+    >>> admin = Browser()
+    >>> admin.addHeader("Authorization", "Basic mgr:mgrpw")
+    >>> admin.handleErrors = False
+
+
+Modify content
+--------------
+
+    >>> user = Browser()
+    >>> user.addHeader("Authorization", "Basic user:userpw")
+    >>> user.handleErrors = False
+
+    >>> admin.open('http://localhost/content11/context.html/presentation')
+    Traceback (most recent call last):
+    ...
+    NotFound: ...
+
+let's mark content as url mappable
+
+    >>> interface.alsoProvides(root['content11'], IURLMappable)
+
+    >>> IURLMapper(content11).enabled
+    False
+    >>> IURLMapper(content11).__parent__ is content11
+    True
+
+    >>> IURLMapper(content11).enabled = True
+    >>> IURLMapper(content11).enabled
+    True
+
+    >>> IURLMapper(content11).enabled = None
+    >>> IURLMapper(content11).enabled
+    False
+
+    >>> absoluteURL(content11, request)
+    'http://127.0.0.1/content11'
+
+    >>> admin.reload()
+    >>> print admin.contents
+    <html>
+    ...
+    <div class="z-form-fieldset">
+        <div class="z-form-field">
+      <label for="content-urlmapper-widgets-enabled" title="If enabled, content URL will be mapped">Map URL</label>
+      <span class="z-form-fieldRequired">&nbsp;</span>
+      <div class="z-form-help">If enabled, content URL will be mapped</div>
+      <div>
+    <span class="option">
+      <label for="content-urlmapper-widgets-enabled-0">
+        <input id="content-urlmapper-widgets-enabled-0"
+               name="content.urlmapper.widgets.enabled:list"
+               class="radio-widget required bool-field"
+               value="true" type="radio" />
+        <span class="label">yes</span>
+      </label>
+    </span>
+    <span class="option">
+      <label for="content-urlmapper-widgets-enabled-1">
+        <input id="content-urlmapper-widgets-enabled-1"
+               name="content.urlmapper.widgets.enabled:list"
+               class="radio-widget required bool-field"
+               value="false" checked="checked" type="radio" />
+        <span class="label">no</span>
+      </label>
+    </span>
+    <input name="content.urlmapper.widgets.enabled-empty-marker"
+           type="hidden" value="1" />
+    </div>
+    </div>
+    ...
+    </html>
+
+    >>> admin.getControl(name='content.urlmapper.widgets.enabled:list').value = ['true']
+    >>> admin.getControl('URL').value = 'http://www.some.com/'
+    >>> admin.getControl(name="content.urlmapper.buttons.save").click()
+
+    >>> from transaction import commit
+    >>> commit()
+
+    >>> IURLMapper(content11).enabled
+    True
+
+    >>> IURLMapperAware.providedBy(content11)
+    True
+
+
+We get mapped url now
+    >>> absoluteURL(content11, request)
+    'http://www.some.com'
+
+    >>> admin.open('http://localhost/content11/index.html')
+    >>> print admin.contents
+    <html>
+    ...http://www.some.com...
+    </html>
+
+    >>> admin.open('http://localhost/++nourlmapper++/content11/index.html')
+    >>> print admin.contents
+    <html>
+    ...http://localhost/++nourlmapper++/content11...
+    </html>
+
+    >>> admin.open('http://localhost/++urlmapper++/content11/index.html')
+    >>> print admin.contents
+    <html>
+    ...http://www.some.com...
+    </html>
+
+
+url mapper for 'Content2' type
+
+    >>> interface.alsoProvides(content21, IURLMappable)
+    >>> interface.alsoProvides(content22, IURLMappable)
+
+    >>> admin.open('http://localhost/content21/context.html/presentation')
+    >>> admin.getControl(name='content.urlmapper.widgets.enabled:list').value = ['true']
+    >>> admin.getControl(name="content.urlmapper.buttons.save").click()
+
+
+Remove content
+--------------
+
+    >>> del root['content21']
+
+    >>> del root['content22']
+    >>> del root['content11']

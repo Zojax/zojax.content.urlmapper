@@ -1,0 +1,16 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:zojax="http://namespaces.zope.org/zojax"
+   xmlns:browser="http://namespaces.zope.org/browser"
+   i18n_domain="zojax.content.urlmapper">
+
+  <!-- edit content wizard -->
+  <zojax:pagelet
+     name="content.urlmapper"
+     type="form.subform"
+     for="zojax.content.urlmapper.interfaces.IURLMappable
+	  zojax.content.forms.interfaces.IPresentationStep"
+     class=".editwizard.URLMapperEditForm"
+     weight="100" />
+
+</configure>
