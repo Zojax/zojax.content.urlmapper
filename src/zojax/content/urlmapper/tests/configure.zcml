@@ -1,0 +1,47 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:zojax="http://namespaces.zope.org/zojax"
+   xmlns:browser="http://namespaces.zope.org/browser"
+   i18n_domain="zojax.content.urlmapper">
+
+  <zojax:content
+     title="Content1"
+     schema=".content.IContent1"
+     name="tests.content1"
+     class=".content.Content1"
+     type="zojax.content.type.interfaces.IActivePortalType" />
+
+  <class class=".content.Content1">
+    <require
+       permission="zope.Public"
+       interface="zojax.content.type.interfaces.IItem"
+       set_schema="zojax.content.type.interfaces.IItem" />
+  </class>
+
+  <zojax:pagelet
+     name="index.html"
+     for=".content.IContent1"
+     template="content.pt"
+     provides="zojax.content.type.interfaces.IContentView" />
+
+  <zojax:content
+     title="Content2"
+     schema=".content.IContent2"
+     name="tests.content2"
+     class=".content.Content2"
+     type="zojax.content.type.interfaces.IActivePortalType" />
+
+  <class class=".content.Content2">
+    <require
+       permission="zope.Public"
+       interface="zojax.content.type.interfaces.IItem"
+       set_schema="zojax.content.type.interfaces.IItem" />
+  </class>
+
+  <zojax:pagelet
+     name="index.html"
+     for=".content.IContent2"
+     template="content.pt"
+     provides="zojax.content.type.interfaces.IContentView" />
+
+</configure>

@@ -1,0 +1,50 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:i18n="http://namespaces.zope.org/i18n"
+   xmlns:zojax="http://namespaces.zope.org/zojax"
+   i18n_domain="zojax.content.urlmapper">
+
+  <zojax:extension
+     name="urlmapper"
+     title="Url mapping"
+     description="Url mapping extension."
+     for=".interfaces.IURLMappable"
+     schema=".interfaces.IURLMapper"
+     class=".extension.URLMapperExtension"
+     permission="zojax.Configure">
+    <require
+       permission="zope.View"
+       attributes="enabled" />
+  </zojax:extension>
+
+  <adapter
+     name="absolute_url"
+     factory=".adapters.SectionAbsoluteURL" />
+
+  <adapter
+     factory=".adapters.SectionAbsoluteURL" />
+
+  <adapter
+     for="* *"
+     name="urlmapper"
+     provides="zope.traversing.interfaces.ITraversable"
+     factory=".adapters.SectionURL" />
+
+  <adapter
+     for="* *"
+     name="nourlmapper"
+     provides="zope.traversing.interfaces.ITraversable"
+     factory=".adapters.NoSectionURL" />
+
+  <!-- translations -->
+  <i18n:registerTranslations directory="locales"/>
+
+  <!-- generations -->
+  <utility
+     name="zojax.content.urlmapper"
+     provides="zope.app.generations.interfaces.ISchemaManager"
+     component=".generations.schemaManager" />
+
+  <include package=".browser" />
+
+</configure>
