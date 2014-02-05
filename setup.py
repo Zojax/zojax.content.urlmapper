@@ -73,6 +73,7 @@ setup(name = 'zojax.content.urlmapper',
                                   'zojax.security',
                                   'zojax.autoinclude',
                                   'zojax.content.browser',
+                                  'zc.catalog',
                                   ]),
       include_package_data = True,
       zip_safe = False
